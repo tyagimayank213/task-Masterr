@@ -1,0 +1,16 @@
+{
+    "name": "nodejs1",
+    "version": "1.0.0",
+    "description": "read input from user",
+    "main": "NodeJS Assignment2.js",
+    "scripts": {
+      "test": "node test"
+    },
+    "author": "Mayank",
+    "license": "ISC",
+    "dependencies": {
+      "express": "^4.18.2",
+      "socket.io": "^4.7.1"
+    }
+  }
+  
