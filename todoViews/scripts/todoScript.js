@@ -1,8 +1,13 @@
+
 const submitTodoNode = document.getElementById('submitTodo');
 const userInputNode = document.getElementById('userInput');
 const todoListNode = document.getElementById('todoList');
 const prioritySelect = document.getElementById('prioritySelect');
 let numberOfTodos = 0;
+const username = document.getElementById('username');
+const password = document.getElementById('password');
+const profileName = document.getElementById('profileName');
+
 
 // submit todo
 submitTodoNode.addEventListener('click', function () {
@@ -22,7 +27,7 @@ submitTodoNode.addEventListener('click', function () {
         priority: prioritySelect.value,
     }
 
-    fetch("/todo", {
+    fetch("/addtodo", {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
@@ -31,6 +36,13 @@ submitTodoNode.addEventListener('click', function () {
     }).then(function (response) {
         if (response.status === 200) {
             showTodoInUI(todo);
+        }
+        else if (response.status === 401) {
+            alert('Please Login First');
+            window.location.href = "/";
+        }
+        else {
+            alert('Something weird happened')
         }
     }).catch(function (error) {
         console.log("Error in fetching response ", error);
@@ -56,7 +68,7 @@ function showTodoInUI(todo) {
     btn.id = 'server' + numberOfTodos;
     btn.addEventListener('click', deleteTodoNode);
     todoTextNode.appendChild(btn);
-    
+
     switch (prioritySelect.value) {
         case 'low':
             todoTextNode.style.border = "2px solid green";
@@ -87,7 +99,6 @@ function deleteTodoNode() {
         alert("Node not Present");
         return;
     }
-    numberOfTodos -= 1;
     const idd = {
         id: this.id,
     }
@@ -102,6 +113,13 @@ function deleteTodoNode() {
         if (response.status === 200) {
             deleteFromUI(idd);
         }
+        else if (response.status === 401) {
+            alert('Please Login First');
+            window.location.href = "/";
+        }
+        else {
+            alert('Something weird happened')
+        }
     }).catch(function (err) {
         console.log('Error in deleting Node ', err);
     })
@@ -115,26 +133,37 @@ function deleteFromUI(idd) {
 }
 
 
+
+
 // on window load fetching all stored data
 window.onload = function getAllTodo() {
-    // console.log('hello function');
     fetch("/getalltodo")
         .then(function (response) {
             if (response.status === 200) {
-                // showTodoOnRefresh(response.data);
                 return response.json();
             }
+            else if (response.status === 401) {
+                alert('Please Login First');
+                window.location.href = "/";
+                return;
+            }
+            else {
+                alert('Something weird happened');
+                return
+            }
         }).then((json) => {
-            // console.log(json);
-            showTodoOnRefresh(json);
+            const str1 = json.fullname;
+            const arr = str1.split(" ");
+            for (var i = 0; i < arr.length; i++) {
+                arr[i] = arr[i].charAt(0).toUpperCase() + arr[i].slice(1);
+            }
+            const str2 = arr.join(" ");
+            profileName.innerText = str2;
+            showTodoOnRefresh(json.data);
         }).catch(function (error) {
             console.log("Error in fetching response ", error);
         })
 };
-
-
-
-// getAllTodo();
 
 function showTodoOnRefresh(data) {
     Object.values(data).map((ele) => {
@@ -158,7 +187,8 @@ function showTodoOnRefresh(data) {
         btn.id = 'server' + index;
         btn.addEventListener('click', deleteTodoNode);
         todoTextNode.appendChild(btn);
-        
+
+
         switch (ele.priority) {
             case 'low':
                 todoTextNode.style.border = "2px solid green";
@@ -182,12 +212,14 @@ function showTodoOnRefresh(data) {
 
 }
 
-function updateCheckbox(){
+
+// update todo function
+function updateCheckbox() {
     const checkboxID = this.id;
-    const makingServerId = 'server' + (this.id).charAt((this.id).length -1);
+    const makingServerId = 'server' + (this.id).charAt((this.id).length - 1);
 
     const sendTodoData = {
-        id:makingServerId,
+        id: makingServerId,
     }
 
     fetch("/updatetodo", {
@@ -199,6 +231,85 @@ function updateCheckbox(){
     }).then(function (response) {
         if (response.status === 200) {
             alert('Successfully Updated Toddo');
+        }   
+        else if (response.status === 401) {
+            alert('Please Login First');
+            window.location.href = "/";
+        }
+        else {
+            alert('Something weird happened')
+        }
+    }).catch(function (error) {
+        console.log("Error in fetching response ", error);
+    })
+}
+
+// signup function
+function signupUser() {
+    const fullname = document.getElementById('fullname').value;
+    const email = document.getElementById('email').value;
+    const password = document.getElementById('password').value;
+    const mobile = document.getElementById('mobile').value;
+
+    const signupData =
+    {
+        fullname,
+        email,
+        password,
+        mobile
+    }
+
+    fetch("/signup", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify(signupData),
+    }).then(function (response) {
+        if (response.status === 200) {
+            window.location.href = ('/todoview');
+            return;
+        }
+        else if(response.status === 500){
+            response.json().then(json => alert(json.err));
+        }
+        else {
+            alert('Something weird happened');
+        }
+    }).catch(function (error) {
+        console.log("Error in fetching response ", error);
+    })
+}
+
+// login function
+function loginUser() {
+    event.preventDefault();
+    const username = document.getElementById('username').value;
+    const password = document.getElementById('passwordLogin').value;
+
+    const loginData =
+    {
+        username,
+        password
+    }
+    console.log(loginData);
+
+    fetch("/login", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify(loginData),
+    }).then(function (response) {
+        if (response.status === 200) {
+            window.location.href = ('/todoview');
+            return;
+        }
+        else if (response.status === 409) {
+            response.json().then(json => alert(json.err));
+        }
+        else {
+            alert('Something weird happened');
         }
     }).catch(function (error) {
         console.log("Error in fetching response ", error);

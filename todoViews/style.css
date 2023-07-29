@@ -7,17 +7,36 @@
 nav{
     display: flex;
     color: black;
-    padding: 0 2rem;
+    padding: 0 5rem;
     background-color: rgb(213, 230, 236);
-    /* justify-content: center; */
-    padding-left: 3rem  ;
+    justify-content: space-between;
 }
-nav a{
+.special{
+    font-size:20px ;
+    color: rgb(92, 41, 41);
+}
+#logo{
     padding: .8rem 1.8rem;
-    transition-duration: 200ms;
     color: white;
     text-decoration: none;
     font-weight: 600;
+    background-color: rgb(45, 82, 107);
+}
+nav div{
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+    /* background-color:     rgb(45, 82, 107); */
+}
+nav div a{
+    padding: 1rem 1.8rem;
+    color: white;
+    text-decoration: none;
+    font-weight: 600;
+    color: black;
+}
+nav div a:hover{
+    color: white;
     background-color: rgb(45, 82, 107);
 }
 #todoMainSection{
@@ -127,6 +146,8 @@ input[type="checkbox"]:checked + label{
 #inputBox{
     display: flex;
     gap: 1rem;
+    justify-content: center;
+    align-items: center;
     
 }
 #constraints{
@@ -159,7 +180,7 @@ input[type="checkbox"]:checked + label{
 }
 
 #green{
-    display: flex;
+    display: flex;  
     gap: 1rem;
 }
 #orange{
@@ -170,7 +191,114 @@ input[type="checkbox"]:checked + label{
     display: flex;
     gap: 1rem;
 }
-.special{
-    font-size:20px ;
-    color: rgb(92, 41, 41);
+
+
+/* login */
+
+#login form{
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+    max-width: 400px;
+    margin:8rem auto;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.2);
+    
+}
+
+input[type='email'],
+input[type='text'],
+input[type='tel'],
+input[type='password']{
+    display: block;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+    border: none;
+    border-radius: 3px;
+    font-size: 16px;
+    padding: 10px;
+    width: 100%;
+    margin-bottom: 1rem;
+    margin-top: .5rem;
+}
+
+input[type='submit']{
+    border: none;
+    border-radius: 3px;
+    font-size: 16px;
+    padding: 10px;
+    width: 100%;
+    color: black;
+    cursor: pointer;
+    background-color: rgb(213, 230, 236);
+}
+input[type='submit']:hover{
+    color: white;
+    background-color: rgb(45, 82, 107);
+}
+#prioritySelect{
+    height: 2.3rem;
+}
+#profile{
+    position: relative;
+}
+#profile a{
+    position: absolute;
+    display: none;
+    top: 3.25rem;
+    padding: 1rem 1.8rem;
+    font-weight: 500;
+    color: black;
+    width: 100%;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+    font-size: 14px;
+}
+#profile p{
+    padding: 1rem 1.8rem;
+    font-weight: 600;
+    color: black;
+    width: 100%;
+}
+#profile p:hover{
+    background-color: rgb(45, 82, 107);
+    color: white;
+}
+#profile p:hover+a{
+    display: block;
+}
+#profile a:hover{
+    display: block;
+    background-color: rgb(45, 82, 107);
+    color: white;
+}
+#login h2{
+    margin-bottom: 1rem;
+}
+#signup h2{
+    margin-bottom: 1rem;
+}
+#signupLink{
+    margin-top: 1rem;
+    text-decoration: none;
+    color: blue;
+}
+#signupLink:hover{
+    text-decoration: underline;
+}
+#signup{
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+    max-width: 400px;
+    margin:3rem auto;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.2);
+}
+#signup a{
+    margin-top: 1rem;
+    text-decoration: none;
+    color: blue;
+    width: 100px;
+}
+#signup a:hover{
+    text-decoration: underline;
 }

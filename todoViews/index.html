@@ -11,38 +11,23 @@
 
 <body>
     <nav>
-        <a href="/"><span class="special">T</span>ask <span class='special'>M</span>aster</a>
-        
-    </nav>
-    <div id="mainSection">
-        <div id="todoMainSection">
-            <div id="inputBox">
-                <input id="userInput" type="text" placeholder="Write Here...">
-                <select id="prioritySelect">
-                    <option value="low">Low</option>
-                    <option value="medium">Medium</option>
-                    <option value="high">High</option>
-                </select>
-            </div>
-            <button id="submitTodo"></button>
-            <h3 style="margin-top: 5rem; float: left; display: block;">Todo Priority:</h3>
-            <div id="constraints">
-                <div id="green">
-                    <div class="box"></div>
-                    <label> - Low</label>
-                </div>
-                <div id="orange">
-                    <div class="box"></div>
-                    <label> - Medium</label>
-                </div>
-                <div id="red">
-                    <div class="box"></div>
-                    <label> - High</label>
-                </div>
-            </div>
+        <a id="logo" href="#"><span class="special">T</span>ask <span class='special'>M</span>aster</a>
+        <div>
+            <a href="/signup">Sign up</a>
         </div>
-        <div id="todoList"></div>
+    </nav>
+    <div id="login">
+        <form onsubmit="loginUser()">
+            <h2>Login</h2>
+            <label for="username">Username:</label>
+            <input type="email" name="username" id="username">
+            <label for="passwordLogin">Password:</label>
+            <input type="password" name="passwordLogin" id="passwordLogin">
+            <input type="submit" value="Submit">
+            <a href="/signup" id="signupLink">Create a new account >></a>
+        </form>
     </div>
+    
 
 </body>
 <script src="./todoScript.js"></script>
