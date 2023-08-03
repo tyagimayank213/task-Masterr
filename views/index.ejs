@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./style.css">
+    <title>Document</title>
+</head>
+
+<body>
+    <%- include("header", {pageName: pageName, username: null})%>
+    <div id="login">
+        <form onsubmit="loginUser()">
+            <h2>Login</h2>
+            <label for="username">Username:</label>
+            <input type="email" name="username" id="username" />
+            
+            <label for="passwordLogin">Password:</label>
+            <input type="password" name="passwordLogin" id="passwordLogin" />
+            
+            <input type="submit" value="Submit" />
+            <a href="/signup" id="signupLink">Create a new account >></a>
+        </form>
+    </div>
+    
+
+</body>
+<script src="./todoScript.js"></script>
+
+</html>

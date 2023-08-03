@@ -1,0 +1,26 @@
+<% if(pageName === 'login' || pageName === 'signup') {%>
+    <nav>
+        <a id="logo" href="#"><span class="special">T</span>ask <span class='special'>M</span>aster</a>
+        <div>
+            <% if(pageName === 'login') { %>
+                <a href="/signup">Sign up</a>
+            <% } else {%>
+                <a href="/">Login</a>
+            <% } %>
+        </div>
+    </nav>
+<% } else {%>
+    <nav>
+        <a id="logo" href="#"><span class="special">T</span>ask <span class='special'>M</span>aster</a>
+        <div>
+            <a href="/todoview">Todo</a>
+            <div id="profile">
+                <%if(username){%>
+                    <p id="profileName"><%= username%></p>
+                <% } %>
+                <a href="/logout">Log Out</a>
+            </div>
+        </div>
+        
+    </nav>
+<% } %>

@@ -152,13 +152,6 @@ window.onload = function getAllTodo() {
                 return
             }
         }).then((json) => {
-            const str1 = json.fullname;
-            const arr = str1.split(" ");
-            for (var i = 0; i < arr.length; i++) {
-                arr[i] = arr[i].charAt(0).toUpperCase() + arr[i].slice(1);
-            }
-            const str2 = arr.join(" ");
-            profileName.innerText = str2;
             showTodoOnRefresh(json.data);
         }).catch(function (error) {
             console.log("Error in fetching response ", error);
@@ -266,8 +259,9 @@ function signupUser() {
         },
         body: JSON.stringify(signupData),
     }).then(function (response) {
+        console.log("client")
         if (response.status === 200) {
-            window.location.href = ('/todoview');
+            window.location.href = ('/');
             return;
         }
         else if(response.status === 500){

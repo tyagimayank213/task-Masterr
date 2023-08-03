@@ -3,7 +3,7 @@ var session = require('express-session')
 const app = express();
 const fs = require('fs');
 
-
+app.set("view engine", "ejs");
 
 
 
@@ -28,7 +28,10 @@ app.get('/todoview', function (req, res) {    //todoview
         res.redirect('/');
         return;
     }
-    res.sendFile(__dirname + '/todoViews/todoIndex.html');
+    console.log('todo')
+    res.render("todoIndex", {pageName: null, username :
+         req.session.fullname});
+         return;
 });
 
 app.post('/addtodo', function (req, res) {     //addTodo
@@ -104,7 +107,9 @@ app.post('/updatetodo', function (req, res) {          //updateTodo on checkbox 
 });
 
 app.get('/signup', function (req, res) {                  //signup page
-    res.sendFile(__dirname + '/todoViews/signup.html');
+    // res.sendFile(__dirname + '/todoViews/signup.html'); 
+    res.render("signup", {pageName: 'signup'});
+    
 });
 
 app.post('/signup', function (req, res) {                //signup add details of user
@@ -116,12 +121,17 @@ app.post('/signup', function (req, res) {                //signup add details of
         req.session.isLoggedIn = true;
         req.session.fullname = req.body.fullname;
         req.session.email = req.body.email;
-        res.status(200).send("User Login");
+        console.log("signup");
+        res.status(200).send("User signup");
+        return;
     });
+    return;
+    
 });
 
 app.get('/', function (req, res) {                 //loginPage render
-    res.sendFile(__dirname + '/todoViews/index.html');
+    // res.sendFile(__dirname + '/todoViews/index.html');
+    res.render("index", {pageName: 'login'});
 });
 
 app.post('/login', function (req, res) {                //loginpage checking credentials
