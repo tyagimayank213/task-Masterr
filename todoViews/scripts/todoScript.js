@@ -152,6 +152,8 @@ window.onload = function getAllTodo() {
                 return
             }
         }).then((json) => {
+            if(json.data == null || json.data == undefined)
+                return;
             showTodoOnRefresh(json.data);
         }).catch(function (error) {
             console.log("Error in fetching response ", error);
@@ -261,8 +263,7 @@ function signupUser() {
     }).then(function (response) {
         console.log("client")
         if (response.status === 200) {
-            window.location.href = ('/');
-            return;
+            window.location.href = ('/todoview');
         }
         else if(response.status === 500){
             response.json().then(json => alert(json.err));

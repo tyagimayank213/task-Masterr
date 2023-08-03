@@ -28,10 +28,10 @@ app.get('/todoview', function (req, res) {    //todoview
         res.redirect('/');
         return;
     }
-    console.log('todo')
     res.render("todoIndex", {pageName: null, username :
          req.session.fullname});
          return;
+         
 });
 
 app.post('/addtodo', function (req, res) {     //addTodo
@@ -75,7 +75,7 @@ app.get('/getalltodo', function (req, res) {       // getTodoOnLoad
     getAllTodo(function (err, data) {
         if (err) {
             res.status(500).send("error");
-            console.log("error")
+            console.log("error");
             return;
         }
         const initialData = {
@@ -115,15 +115,16 @@ app.get('/signup', function (req, res) {                  //signup page
 app.post('/signup', function (req, res) {                //signup add details of user
     saveTodoInFile(req.body, 'user.json', function (err, data) {
         if (err) {
-            res.status(500).send({ err });
-            return;
+            return res.status(500).send({ err });
+            
         }
         req.session.isLoggedIn = true;
         req.session.fullname = req.body.fullname;
         req.session.email = req.body.email;
         console.log("signup");
-        res.status(200).send("User signup");
-        return;
+        // res.setHeader('X-Foo', 'bar');
+        return res.status(200).send({success: "User signup"});
+        // return;
     });
     return;
     
@@ -257,7 +258,7 @@ function saveTodoInFile(inputData, file, callback) {
             }
 
             data[inputData.email] = inputData;
-            callback(null);
+            
         }
         fs.writeFile(file, JSON.stringify(data), function (err) {
             if (err) {
@@ -265,6 +266,7 @@ function saveTodoInFile(inputData, file, callback) {
                 return;
             }
             callback(null, inputData.fullname);
+            return;
         });
     });
 }
