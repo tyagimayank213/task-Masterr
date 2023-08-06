@@ -257,8 +257,7 @@ function saveTodoInFile(inputData, file, callback) {
                 return;
             }
 
-            data[inputData.email] = inputData;
-            
+            data[inputData.email] = inputData;  
         }
         fs.writeFile(file, JSON.stringify(data), function (err) {
             if (err) {
