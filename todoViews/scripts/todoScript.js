@@ -15,13 +15,13 @@ const profileName = document.getElementById('profileName');
 submitTodoNode.addEventListener('click', function () {
 
     const todoText = userInputNode.value;
-
+    
     if (!todoText) {
         alert("Please enter a todo");
         return;
     }
     // todoList = [...todoList, todoText];
-    numberOfTodos += 1;
+    // numberOfTodos += 1;
     const todo = {
         id: 'server' + numberOfTodos,
         todoText,
@@ -37,7 +37,7 @@ submitTodoNode.addEventListener('click', function () {
         body: JSON.stringify(todo),
     }).then(function (response) {
         if (response.status === 200) {
-            showTodoInUI(todo);
+            return response.json(); 
         }
         else if (response.status === 401) {
             alert('Please Login First');
@@ -46,17 +46,19 @@ submitTodoNode.addEventListener('click', function () {
         else {
             alert('Something weird happened')
         }
+    }).then(function(json){
+        showTodoInUI(todo, json.id);
     }).catch(function (error) {
         console.log("Error in fetching response ", error);
     })
 })
 
-function showTodoInUI(todo) {
+function showTodoInUI(todo, id) {
     const todoTextNode = document.createElement('div');
     todoTextNode.setAttribute("class", "todo");
-    todoTextNode.setAttribute("id", numberOfTodos);
+    todoTextNode.setAttribute("id", `todoBox${id}`);
 
-    const name = 'todo' + numberOfTodos;
+    const name = 'todo' + id;
     const todoNode = `
                         <div class='textTodo'>
                             <input type="checkbox" name=${name} id=${name}>
@@ -67,7 +69,8 @@ function showTodoInUI(todo) {
     const btn = document.createElement('img');
     btn.src = './delete.png';
     btn.alt = 'deleteIcon';
-    btn.id = 'server' + numberOfTodos;
+    // btn.id = 'server' + id;
+    btn.id = id;
     btn.addEventListener('click', deleteTodoNode);
     todoTextNode.appendChild(btn);
 
@@ -126,10 +129,8 @@ function deleteTodoNode() {
         console.log('Error in deleting Node ', err);
     })
 }
-
 function deleteFromUI(idd) {
-    let elementId = idd.id;
-    elementId = elementId.charAt(elementId.length - 1);
+    let elementId = `todoBox${idd.id}`;
     const element = document.getElementById(elementId);
     element.remove();
 }
@@ -154,7 +155,7 @@ window.onload = function getAllTodo() {
                 return
             }
         }).then((json) => {
-            if(json.data == null || json.data == undefined)
+            if(json?.data == null || json?.data == undefined)
                 return;
             showTodoOnRefresh(json.data);
         }).catch(function (error) {
@@ -166,11 +167,10 @@ function showTodoOnRefresh(data) {
     Object.values(data).map((ele) => {
         const todoTextNode = document.createElement('div');
         todoTextNode.setAttribute("class", "todo");
-        let index = (ele.id).charAt((ele.id).length - 1);
-        numberOfTodos = Number(index);
-        todoTextNode.setAttribute("id", index);
+        // numberOfTodos = Number(index);
+        todoTextNode.setAttribute("id", `todoBox${ele._id}`);
 
-        const name = 'todo' + index;
+        const name = 'todo' + ele._id;
         const todoNode = `
                         <div class='textTodo'>
                             <input type="checkbox" name=${name} id=${name}>
@@ -181,7 +181,7 @@ function showTodoOnRefresh(data) {
         const btn = document.createElement('img');
         btn.src = './delete.png';
         btn.alt = 'deleteIcon';
-        btn.id = 'server' + index;
+        btn.id = ele._id;
         btn.addEventListener('click', deleteTodoNode);
         todoTextNode.appendChild(btn);
 
@@ -212,15 +212,15 @@ function showTodoOnRefresh(data) {
 
 // update todo function
 function updateCheckbox() {
-    const checkboxID = this.id;
-    const makingServerId = 'server' + (this.id).charAt((this.id).length - 1);
+    const checkboxID = (this.id).substring(4);
 
     const sendTodoData = {
-        id: makingServerId,
+        id: checkboxID,
+        value: this.checked
     }
 
     fetch("/updatetodo", {
-        method: "POST",
+        method: "POST", 
         headers: {
             "Content-Type": "application/json",
         },
@@ -255,7 +255,7 @@ function signupUser() {
         password,
         mobile
     }
-
+    console.log(signupData)
     fetch("/signup", {
         method: "POST",
         headers: {
@@ -281,12 +281,12 @@ function signupUser() {
 // login function
 function loginUser() {
     event.preventDefault();
-    const username = document.getElementById('username').value;
+    const email = document.getElementById('username').value;
     const password = document.getElementById('passwordLogin').value;
 
     const loginData =
     {
-        username,
+        email,
         password
     }
     console.log(loginData);

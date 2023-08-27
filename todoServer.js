@@ -4,6 +4,12 @@ const app = express();
 const fs = require('fs');
 
 app.set("view engine", "ejs");
+const db = require('./models/db')
+const UserModel = require('./models/User')
+const DataModel = require('./models/Data')
+const UserTodoModel = require('./models/UserTodo');
+const { ObjectId } = require('mongodb');
+const Data = require('./models/Data');
 
 
 
@@ -28,137 +34,236 @@ app.get('/todoview', function (req, res) {    //todoview
         res.redirect('/');
         return;
     }
-    res.render("todoIndex", {pageName: null, username :
-         req.session.fullname});
-         return;
-         
+    res.render("todoIndex", {
+        pageName: null, username:
+            req.session.fullname
+    });
+    return;
+
 });
 
-app.post('/addtodo', function (req, res) {     //addTodo
+app.post('/addtodo', async function (req, res) {     //addTodo
     if (!req.session.isLoggedIn) {
         res.status(401).send("error");
         return;
     }
-    req.body.email = req.session.email;
-    saveTodoInFile(req.body, 'treasure.mp4', function (err) {
-        if (err) {
-            res.status(500).send("error");
-            return;
+    try {
+        const data = await DataModel.create(req.body);
+
+        const user = await UserTodoModel.findOne({ email: req.session.email });
+        if (user) {
+            await UserTodoModel.findOneAndUpdate({ email: req.session.email },
+                { $push: { todoData: data._id } })
         }
-        res.status(200).send("Add Todo");
-    });
+        else {
+            const userData = {
+                email: req.session.email,
+                todoData: [data._id],
+            }
+            await UserTodoModel.create(userData);
+        }
+        return res.status(200).send({ id: data._id });
+    }
+    catch (err) {
+        console.log(err);
+    }
+
+    // saveTodoInFile(req.body, 'treasure.mp4', function (err) {
+    // req.body.email = req.session.email;
+    //     if (err) {
+    //         res.status(500).send("error");
+    //         return;
+    //     }
+    //     res.status(200).send({ id: data._id });
+    // });
 });
 
-app.post('/deleteTodo', function (req, res) {      //deleteTodo
+app.post('/deleteTodo', async function (req, res) {      //deleteTodo
     if (!req.session.isLoggedIn) {
         res.status(401).send("error");
         return;
     }
-    let temp = {
-        id: req.body.id,
-        email: req.session.email
+    try {
+        await Data.findByIdAndDelete(req.body.id);
+        await UserTodoModel.findOneAndUpdate({ email: req.session.email },
+            { $pull: { todoData: req.body.id } }
+        );
+        return res.status(200).send("Delete Todo");
     }
-    deleteTodoFromFile(temp, function (err) {
-        if (err) {
-            res.status(500).send("error");
-            return;
-        }
-        res.status(200).send("Delete Todo");
-    });
+    catch (err) {
+        return res.status(500).send("error");
+    }
+
+
+
+    // let temp = {
+    //     id: req.body.id,
+    //     email: req.session.email
+    // }
+    // deleteTodoFromFile(temp, function (err) {
+    //     if (err) {
+    //         res.status(500).send("error");
+    //         return;
+    //     }
+    //     res.status(200).send("Delete Todo");
+    // });
 });
 
-app.get('/getalltodo', function (req, res) {       // getTodoOnLoad
+app.get('/getalltodo', async function (req, res) {       // getTodoOnLoad
     if (!req.session.isLoggedIn) {
         res.status(401).send("error");
         return;
     }
-    getAllTodo(function (err, data) {
-        if (err) {
-            res.status(500).send("error");
-            console.log("error");
-            return;
+    try{
+        const userData = await UserTodoModel.findOne({ email: req.session.email }).populate('todoData')
+        if (userData){
+            const initMongoData = userData.todoData || [];
+            return res.status(200).send({ data: initMongoData });
         }
-        const initialData = {
-            fullname: req.session.fullname,
-            data: data[req.session.email]
+        else{
+            return res.status(200).send({ data: [] });
         }
-        console.log(initialData);
-        res.status(200).send(initialData);
-        return;
-    });
+    }
+    catch(err){
+        res.status(500).send("error");
+    }
+
+    // getAllTodo(function (err, data) {
+    //     if (err) {
+    //         res.status(500).send("error");
+    //         console.log("error");
+    //         return;
+    //     }
+    //     const initialData = {
+    //         fullname: req.session.fullname,
+    //         data: data[req.session.email]
+    //     }
+// return res.status(200).send({ data: initMongoData });
+    //     
+    //     return;
+    // });
 });
 
-app.post('/updatetodo', function (req, res) {          //updateTodo on checkbox click
+app.post('/updatetodo', async function (req, res) {          //updateTodo on checkbox click
     if (!req.session.isLoggedIn) {
         res.status(401).send("error");
         return;
     }
-    req.body.email = req.session.email;
-    updateTodo(req.body, function (err) {
-        if (err) {
-            res.status(500).send("error");
-            console.log("Error in Updating todo");
-            return;
-        }
-        res.status(200).send('Update Todo');
-        return;
-    });
+    try {
+        await DataModel.findOneAndUpdate({ _id: req.body.id },
+            { $set: { checkbox: req.body.value } }
+        );
+        return res.status(200).send('Update Todo');
+    }
+    catch (err) {
+        console.log(err);
+    }
+
+    // updateTodo(req.body, function (err) {
+    // req.body.email = req.session.email;
+    //     if (err) {
+    //         res.status(500).send("error");
+    //         console.log("Error in Updating todo");
+    //         return;
+    //     }
+    //     res.status(200).send('Update Todo');
+    //     return;
+    // });
 
 });
 
 app.get('/signup', function (req, res) {                  //signup page
     // res.sendFile(__dirname + '/todoViews/signup.html'); 
-    res.render("signup", {pageName: 'signup'});
-    
+    res.render("signup", { pageName: 'signup' });
 });
 
 app.post('/signup', function (req, res) {                //signup add details of user
-    saveTodoInFile(req.body, 'user.json', function (err, data) {
-        if (err) {
-            return res.status(500).send({ err });
-            
-        }
-        req.session.isLoggedIn = true;
-        req.session.fullname = req.body.fullname;
-        req.session.email = req.body.email;
-        console.log("signup");
-        // res.setHeader('X-Foo', 'bar');
-        return res.status(200).send({success: "User signup"});
-        // return;
-    });
+
+    const user = {
+        fullname: req.body.fullname,
+        email: req.body.email,
+        password: req.body.password,
+        mobile: req.body.mobile,
+    };
+    UserModel.create(user)
+        .then(function () {
+            res.status(200).send({ success: "User signup", status: 200 });
+        })
+        .catch(function (error) {
+            if (error.code === 11000 && error.keyPattern && error.keyPattern.email) {
+                res.status(500).send({ err: 'Email already exists', status: 401 });
+            } else {
+                res.send({ err: 'Error user cannot save', status: 402 })
+            }
+        })
+
+
+    // saveTodoInFile(req.body, 'user.json', function (err, data) {
+    //     if (err) {
+    //         return res.status(500).send({ err });
+
+    //     }
+    //     req.session.isLoggedIn = true;
+    //     req.session.fullname = req.body.fullname;
+    //     req.session.email = req.body.email;
+    //     console.log("signup");
+    //     // res.setHeader('X-Foo', 'bar');
+    //     return res.status(200).send({success: "User signup"});
+    //     // return;
+    // });
     return;
-    
+
 });
 
 app.get('/', function (req, res) {                 //loginPage render
     // res.sendFile(__dirname + '/todoViews/index.html');
-    res.render("index", {pageName: 'login'});
+    res.render("index", { pageName: 'login' });
 });
 
-app.post('/login', function (req, res) {                //loginpage checking credentials
-    const username = req.body.username;
+app.post('/login', async function (req, res) {                //loginpage checking credentials
+    const email = req.body.email;
     const password = req.body.password;
 
-    // user exist or not
-    checkUserExistence(username, password, function (err, data) {
-        if (err) {
-            if (err === 'username') {
-                res.status(409).send({ err: 'Username not exist' });
-            }
-            else if (err === 'password') {
-                res.status(409).send({ err: 'Wrong password' });
-            }
-            else {
-                console.log(err);
-            }
-            return;
+    try {
+        const user = await UserModel.findOne({ email });
+        if (!user) {
+            return res.status(409).send({ err: 'Username not exist' });
+        }
+        if (user.password !== password) {
+            return res.status(409).send({ err: 'Wrong password' });
         }
         req.session.isLoggedIn = true;
-        req.session.fullname = data.fullname;
-        req.session.email = data.email;
-        res.status(200).send('login');
+        req.session.fullname = user.fullname;
+        req.session.email = user.email;
+        res.status(200).send();
         return;
-    });
+
+    } catch (err) {
+        console.log(err);
+    }
+
+
+
+    // user exist or not
+    // checkUserExistence(username, password, function (err, data) {
+    //     if (err) {
+    //         if (err === 'username') {
+    //             res.status(409).send({ err: 'Username not exist' });
+    //         }
+    //         else if (err === 'password') {
+    //             res.status(409).send({ err: 'Wrong password' });
+    //         }
+    //         else {
+    //             console.log(err);
+    //         }
+    //         return;
+    //     }
+    //     req.session.isLoggedIn = true;
+    //     req.session.fullname = data.fullname;
+    //     req.session.email = data.email;
+    //     res.status(200).send('login');
+    //     return;
+    // });
 });
 
 app.get('/logout', function (req, res) {                // logout function
@@ -195,9 +300,16 @@ app.get('/delete.png', function (req, res) {                //deleteimage reques
 
 
 // server running
-app.listen(3000, () => {
-    console.log('Server running at port 3000');
-})
+
+db.init().then(function () {
+    console.log('DB Connected');
+    app.listen(3000, () => {
+        console.log('Server running at port 3000');
+    })
+}).catch(function (err) {
+    console.log(err);
+});
+
 
 
 
@@ -257,7 +369,7 @@ function saveTodoInFile(inputData, file, callback) {
                 return;
             }
 
-            data[inputData.email] = inputData;  
+            data[inputData.email] = inputData;
         }
         fs.writeFile(file, JSON.stringify(data), function (err) {
             if (err) {
