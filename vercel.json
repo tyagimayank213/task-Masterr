@@ -1,0 +1,7 @@
+{
+  "version": 2,
+  "name": "native-server",
+  "builds": [{ "src": "todoServer.js", "use": "@vercel/node" }],
+  "routes": [{ "src": "/(.*)", "dest": "/server.js" }]
+}
+https://github.com/tyagimayank213/TaskMasterAuthentication.git
